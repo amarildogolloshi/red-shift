@@ -669,7 +669,7 @@ button:hover {
   }
 
   .board {
-    width: min(76vw, 55vw);
+    width: min(76vw, 50vw);
     max-width: 240px;
     gap: 6px;
   }
