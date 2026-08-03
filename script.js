@@ -6,6 +6,7 @@ let playerBoard;
 let targetBoard;
 let targetRedPos;
 let hasWon = false;
+let activeDrag = null;
 
 const playerBoardEl = document.getElementById("player-board");
 const targetBoardEl = document.getElementById("target-board");
@@ -66,10 +67,17 @@ function renderBoard(board, container) {
     for (let x = 0; x < 3; x++) {
       const tileEl = document.createElement("div");
       tileEl.classList.add("tile");
+      tileEl.dataset.x = x;
+      tileEl.dataset.y = y;
 
       if (board[y][x] === GREEN) tileEl.classList.add("green");
       if (board[y][x] === RED) tileEl.classList.add("red");
       if (board[y][x] === EMPTY) tileEl.classList.add("empty");
+
+      tileEl.addEventListener("pointerdown", handleTilePointerDown);
+      tileEl.addEventListener("pointermove", handleTilePointerMove);
+      tileEl.addEventListener("pointerup", handleTilePointerUp);
+      tileEl.addEventListener("pointercancel", handleTilePointerCancel);
 
       container.appendChild(tileEl);
     }
@@ -91,14 +99,96 @@ function move(board, direction) {
   let targetX = x;
   let targetY = y;
 
-  if (direction === "ArrowUp") targetY++;
-  if (direction === "ArrowDown") targetY--;
-  if (direction === "ArrowLeft") targetX++;
-  if (direction === "ArrowRight") targetX--;
+  if (direction === "ArrowUp") targetY--;
+  if (direction === "ArrowDown") targetY++;
+  if (direction === "ArrowLeft") targetX--;
+  if (direction === "ArrowRight") targetX++;
 
   if (targetX < 0 || targetX > 2 || targetY < 0 || targetY > 2) return;
 
   [board[y][x], board[targetY][targetX]] = [board[targetY][targetX], board[y][x]];
+}
+
+function trySwapTileWithEmpty(board, tileX, tileY) {
+  const empty = findEmpty(board);
+  const isAdjacent = Math.abs(tileX - empty.x) + Math.abs(tileY - empty.y) === 1;
+
+  if (!isAdjacent) return false;
+
+  [board[tileY][tileX], board[empty.y][empty.x]] = [board[empty.y][empty.x], board[tileY][tileX]];
+  return true;
+}
+
+function resetDragState(tileEl) {
+  if (!tileEl) return;
+  tileEl.classList.remove("dragging");
+  tileEl.style.transform = "";
+  tileEl.style.zIndex = "";
+  tileEl.style.position = "";
+}
+
+function handleTilePointerDown(event) {
+  const tileEl = event.currentTarget;
+  const x = Number(tileEl.dataset.x);
+  const y = Number(tileEl.dataset.y);
+
+  if (playerBoard[y][x] === EMPTY || redIsInTargetPosition(playerBoard)) return;
+
+  activeDrag = {
+    tileEl,
+    pointerId: event.pointerId,
+    startX: event.clientX,
+    startY: event.clientY,
+    moved: false
+  };
+
+  tileEl.setPointerCapture?.(event.pointerId);
+  tileEl.classList.add("dragging");
+  tileEl.style.position = "relative";
+  tileEl.style.zIndex = "3";
+  event.preventDefault();
+}
+
+function handleTilePointerMove(event) {
+  if (!activeDrag || activeDrag.pointerId !== event.pointerId) return;
+
+  const dx = event.clientX - activeDrag.startX;
+  const dy = event.clientY - activeDrag.startY;
+
+  if (!activeDrag.moved && (Math.abs(dx) > 4 || Math.abs(dy) > 4)) {
+    activeDrag.moved = true;
+  }
+
+  if (activeDrag.moved) {
+    activeDrag.tileEl.style.transform = `translate(${dx}px, ${dy}px) scale(1.04)`;
+  }
+}
+
+function handleTilePointerUp(event) {
+  if (!activeDrag || activeDrag.pointerId !== event.pointerId) return;
+
+  const tileEl = activeDrag.tileEl;
+  const x = Number(tileEl.dataset.x);
+  const y = Number(tileEl.dataset.y);
+
+  if (!activeDrag.moved) {
+    if (trySwapTileWithEmpty(playerBoard, x, y)) {
+      startTimer();
+      update();
+    }
+  } else if (trySwapTileWithEmpty(playerBoard, x, y)) {
+    startTimer();
+    update();
+  }
+
+  resetDragState(tileEl);
+  activeDrag = null;
+}
+
+function handleTilePointerCancel(event) {
+  if (!activeDrag || activeDrag.pointerId !== event.pointerId) return;
+  resetDragState(activeDrag.tileEl);
+  activeDrag = null;
 }
 
 function redIsInTargetPosition(board) {

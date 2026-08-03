@@ -120,6 +120,14 @@ body {
   font-size: 1.4rem;
   font-weight: 700;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.tile.dragging {
+  opacity: 0.95;
+  box-shadow: 0 10px 20px rgba(17, 24, 39, 0.2);
 }
 
 .tile.green {
