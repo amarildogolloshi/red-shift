@@ -254,9 +254,14 @@ button:hover {
 }
 
 .modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 6px;
+ display: flex !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+    margin-top: auto !important;
+    padding-top: 12px !important;
+    border-top: 1px solid #e5e7eb !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
 }
 
 .user-modal-content {

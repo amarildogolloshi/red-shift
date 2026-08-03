@@ -12,6 +12,7 @@ const playerBoardEl = document.getElementById("player-board");
 const targetBoardEl = document.getElementById("target-board");
 const statusEl = document.getElementById("status");
 const timerEl = document.getElementById("timer");
+const levelEl = document.getElementById("level");
 const resetBtn = document.getElementById("reset-btn");
 const gameCombinationsEl = document.getElementById("game-combinations");
 const gameProgressListEl = document.getElementById("game-progress-list");
@@ -59,6 +60,31 @@ function generateTargetBoard() {
   board[targetRedPos.y][targetRedPos.x] = RED;
 
   return board;
+}
+
+function getBoardDistance(boardA, boardB) {
+  let distance = 0;
+
+  for (let y = 0; y < 3; y++) {
+    for (let x = 0; x < 3; x++) {
+      const aValue = boardA[y][x];
+      const bValue = boardB[y][x];
+
+      if (aValue !== bValue) {
+        distance += 1;
+      }
+    }
+  }
+
+  return distance;
+}
+
+function getLevelLabel(boardA, boardB) {
+  const distance = getBoardDistance(boardA, boardB);
+
+  if (distance <= 1) return "Easy";
+  if (distance <= 2) return "Medium";
+  return "Hard";
 }
 
 function renderBoard(board, container) {
@@ -281,6 +307,10 @@ function update() {
   renderBoard(playerBoard, playerBoardEl);
   renderBoard(targetBoard, targetBoardEl);
 
+  if (levelEl) {
+    levelEl.textContent = getLevelLabel(playerBoard, targetBoard);
+  }
+
   if (redIsInTargetPosition(playerBoard)) {
     if (!hasWon) {
       hasWon = true;
@@ -299,8 +329,16 @@ function update() {
 }
 
 function newGame() {
-  playerBoard = generatePlayerBoard();
-  targetBoard = generateTargetBoard();
+  let nextPlayerBoard;
+  let nextTargetBoard;
+
+  do {
+    nextPlayerBoard = generatePlayerBoard();
+    nextTargetBoard = generateTargetBoard();
+  } while (redIsInTargetPosition(nextPlayerBoard));
+
+  playerBoard = nextPlayerBoard;
+  targetBoard = nextTargetBoard;
   secondsElapsed = 0;
   hasWon = false;
   closeWinModal();
@@ -484,7 +522,6 @@ const printCurrentBtn = document.getElementById("print-current-puzzle");
 const printAllTargetPatternsBtn = document.getElementById("print-all-target-patterns");
 const printAllArrangementTilesBtn = document.getElementById("print-all-arrangement-tiles");
 const printAllBtn = document.getElementById("print-all-combinations");
-const printUniqueBtn = document.getElementById("print-unique-combinations");
 
 function createPrintableCell(value) {
   const valueClass = value === RED ? "pdf-red" : value === EMPTY ? "pdf-empty" : "pdf-green";
@@ -696,44 +733,6 @@ function generateAllPuzzlesPDF() {
   printModal.style.display = "none";
 }
 
-function generateUniquePuzzlesPDF() {
-  const uniquePuzzles = buildUniquePuzzles();
-  const puzzlesHtml = uniquePuzzles.map((puzzle, index) => createPrintablePuzzle(puzzle, index + 1)).join("");
-  const printWindow = window.open("", "_blank", "width=900,height=900");
-  if (!printWindow) return;
-
-  printWindow.document.write(`<!DOCTYPE html>
-    <html lang="en">
-      <head>
-        <meta charset="UTF-8">
-        <title>24 Unique Puzzle Combinations</title>
-        <style>
-          body { font-family: Arial, sans-serif; margin: 20px; text-align: center; }
-          h1 { margin-bottom: 8px; }
-          .summary { margin-bottom: 20px; font-size: 15px; color: #4b5563; }
-          .pdf-puzzle { page-break-inside: avoid; border: 1px solid #ccc; padding: 15px; margin: 15px; display: inline-block; vertical-align: top; width: 260px; }
-          .pdf-board { display: grid; grid-template-columns: repeat(3, 32px); gap: 4px; justify-content: center; margin: 10px auto 16px auto; }
-          .pdf-cell { width: 32px; height: 32px; border: 1px solid #333; display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; }
-          .pdf-green { background: #10b981; }
-          .pdf-red { background: #ef4444; }
-          .pdf-empty { background: #f3f4f6; color: #6b7280; }
-          @media print { * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } }
-        </style>
-      </head>
-      <body>
-        <h1>24 Unique Puzzle Combinations</h1>
-        <div class="summary">A printable set of 24 distinct puzzle cards.</div>
-        <button onclick="window.print()">Save as PDF / Print</button>
-        <hr>
-        ${puzzlesHtml}
-      </body>
-    </html>`);
-
-  printWindow.document.close();
-  printWindow.focus();
-  printModal.style.display = "none";
-}
-
 function openPrintModal() {
   printModal.style.display = "block";
 }
@@ -759,11 +758,6 @@ function buildAllPossiblePuzzles() {
   return puzzles;
 }
 
-function buildUniquePuzzles() {
-  const allPuzzles = buildAllPossiblePuzzles();
-  return allPuzzles.slice(0, 24);
-}
-
 document.querySelectorAll(".menu-print-trigger").forEach((button) => {
   button.addEventListener("click", openPrintModal);
 });
@@ -776,7 +770,6 @@ printCurrentBtn.addEventListener("click", generateCurrentPuzzlePDF);
 printAllTargetPatternsBtn.addEventListener("click", generateAllTargetPatternsPDF);
 printAllArrangementTilesBtn.addEventListener("click", generateAllArrangementTilesPDF);
 printAllBtn.addEventListener("click", generateAllPuzzlesPDF);
-printUniqueBtn.addEventListener("click", generateUniquePuzzlesPDF);
 
 /* Close modals when clicking outside */
 window.addEventListener("click", (e) => {
