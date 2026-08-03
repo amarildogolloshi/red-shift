@@ -1,0 +1,27 @@
+{
+  "name": "red-shift",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "deploy": "gh-pages -d public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amarildogolloshi/red-shift.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/amarildogolloshi/red-shift/issues"
+  },
+  "homepage": "https://github.com/amarildogolloshi/red-shift#readme",
+  "dependencies": {
+    "express": "^5.2.1",
+    "gh-pages": "^6.3.0"
+  }
+}
