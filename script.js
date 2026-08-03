@@ -78,6 +78,9 @@ function renderBoard(board, container) {
       tileEl.addEventListener("pointermove", handleTilePointerMove);
       tileEl.addEventListener("pointerup", handleTilePointerUp);
       tileEl.addEventListener("pointercancel", handleTilePointerCancel);
+      tileEl.addEventListener("touchstart", handleTileTouchStart, { passive: false });
+      tileEl.addEventListener("touchend", handleTileTouchEnd, { passive: false });
+      tileEl.addEventListener("click", handleTileClick);
 
       container.appendChild(tileEl);
     }
@@ -189,6 +192,56 @@ function handleTilePointerCancel(event) {
   if (!activeDrag || activeDrag.pointerId !== event.pointerId) return;
   resetDragState(activeDrag.tileEl);
   activeDrag = null;
+}
+
+function handleTileTouchStart(event) {
+  const tileEl = event.currentTarget;
+  const touch = event.touches[0];
+  const x = Number(tileEl.dataset.x);
+  const y = Number(tileEl.dataset.y);
+
+  if (playerBoard[y][x] === EMPTY || redIsInTargetPosition(playerBoard)) return;
+
+  activeDrag = {
+    tileEl,
+    pointerId: touch ? touch.identifier : 0,
+    startX: touch ? touch.clientX : 0,
+    startY: touch ? touch.clientY : 0,
+    moved: false
+  };
+
+  tileEl.classList.add("dragging");
+  event.preventDefault();
+}
+
+function handleTileTouchEnd(event) {
+  if (!activeDrag) return;
+
+  const tileEl = activeDrag.tileEl;
+  const x = Number(tileEl.dataset.x);
+  const y = Number(tileEl.dataset.y);
+
+  if (trySwapTileWithEmpty(playerBoard, x, y)) {
+    startTimer();
+    update();
+  }
+
+  resetDragState(tileEl);
+  activeDrag = null;
+  event.preventDefault();
+}
+
+function handleTileClick(event) {
+  const tileEl = event.currentTarget;
+  const x = Number(tileEl.dataset.x);
+  const y = Number(tileEl.dataset.y);
+
+  if (playerBoard[y][x] === EMPTY || redIsInTargetPosition(playerBoard)) return;
+
+  if (trySwapTileWithEmpty(playerBoard, x, y)) {
+    startTimer();
+    update();
+  }
 }
 
 function redIsInTargetPosition(board) {
@@ -398,10 +451,21 @@ updateProgressSummary();
 /* Win Modal */
 function showWinModal() {
   saveCompletedGame();
-  winMessageEl.textContent = `You solved the puzzle in ${formatTime(secondsElapsed)}.`;
-  winTimeEl.textContent = formatTime(secondsElapsed);
-  winPlayerEl.textContent = getStoredUserName();
-  winModal.style.display = "block";
+  if (winMessageEl) {
+    winMessageEl.textContent = `You solved the puzzle in ${formatTime(secondsElapsed)}.`;
+  }
+  if (winTimeEl) {
+    winTimeEl.textContent = formatTime(secondsElapsed);
+  }
+  if (winPlayerEl) {
+    winPlayerEl.textContent = getStoredUserName();
+  }
+  if (winModal) {
+    winModal.style.display = "flex";
+    requestAnimationFrame(() => {
+      winModal.style.display = "flex";
+    });
+  }
 }
 
 function closeWinModal() {
