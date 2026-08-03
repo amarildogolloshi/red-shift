@@ -780,3 +780,5 @@ window.addEventListener("click", (e) => {
 });
 
 newGame();
+
+alert(window.innerWidth, window.devicePixelRatio);
