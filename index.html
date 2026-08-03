@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Red Shift Puzzle</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <h2 class="app-title">Red Shift Puzzle</h2>
+
+    <div class="game-info">
+      <div class="timer-box">
+        <span class="timer-label">Time</span>
+        <span id="timer" class="timer-value">00:00</span>
+      </div>
+    </div>
+
+    <div class="boards-panel">
+      <section class="board-card">
+        <h3>Target Pattern</h3>
+        <div id="target-board" class="board"></div>
+      </section>
+
+      <section class="board-card">
+        <h3>Arrange the Tiles</h3>
+        <div id="player-board" class="board"></div>
+      </section>
+    </div>
+
+    <div class="action-panel">
+      <div class="action-row">
+        <button id="reset-btn" class="primary-btn">New Puzzle</button>
+        <button class="secondary-btn menu-facts-trigger">Facts</button>
+      </div>
+
+      <div class="pdf-actions">
+        <button class="pdf-btn primary menu-print-trigger">Print</button>
+      </div>
+    </div>
+
+    <div class="mobile-bottom-bar">
+      <button id="menu-new" class="bottom-btn">New</button>
+      <button id="menu-facts" class="bottom-btn menu-facts-trigger">Facts</button>
+      <button id="menu-print" class="bottom-btn menu-print-trigger">Print</button>
+      <button id="menu-user" class="bottom-btn">User</button>
+    </div>
+  </div>
+
+  <div id="facts-modal" class="modal">
+    <div class="modal-content fact-modal-content">
+      <div class="modal-header">
+        <h2>🧠 Did You Know?</h2>
+        <span id="close-modal" class="close">&times;</span>
+      </div>
+      <div class="modal-body">
+        <p>This puzzle challenges you to move the red tile into the target red tile position.</p>
+        <p>You can slide tiles by moving them into the empty space.</p>
+        <p>The target board shows only one red tile — your goal is to match its position.</p>
+        <p id="game-combinations" class="fact-highlight">Total combinations: 72</p>
+        <p class="fact-note">Calculated as 9 possible red-tile positions × 8 possible empty-space positions = 72.</p>
+      </div>
+      <div class="modal-footer">
+        <button id="close-facts-btn" class="secondary-btn cancel-btn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="user-modal" class="modal">
+    <div class="modal-content user-modal-content">
+      <div class="user-modal-header">
+        <div>
+          <h2>User Profile</h2>
+          <p class="user-modal-subtitle">Track your name and your puzzle progress.</p>
+        </div>
+        <button id="edit-user-btn" class="secondary-btn">Edit</button>
+      </div>
+
+      <div id="name-display-row" class="name-display-row">
+        <span id="user-name-display" class="user-modal-name">Player</span>
+      </div>
+
+      <div id="name-edit-row" class="name-edit-row" style="display: none;">
+        <label for="player-name-input" class="player-label">Player Name</label>
+        <input id="player-name-input" class="player-input" type="text" maxlength="24" placeholder="Enter your name">
+        <button id="save-user-btn" class="primary-btn">Save</button>
+      </div>
+
+      <div class="user-history-card">
+        <h3>Game Progress</h3>
+        <p>Your name and puzzle stats are saved on this device.</p>
+        <div id="game-progress-list" class="game-progress-list"></div>
+      </div>
+
+      <div class="modal-footer">
+        <button id="close-user-modal" class="secondary-btn cancel-btn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="win-modal" class="modal">
+    <div class="modal-content win-modal-content">
+      <div class="win-modal-icon">🎉</div>
+      <h2>Level Complete!</h2>
+      <p id="win-message" class="win-modal-message">You matched the red tile position.</p>
+
+      <div class="win-stats-card">
+        <div class="win-stat">
+          <span class="win-stat-label">Time</span>
+          <span id="win-time" class="win-stat-value">00:00</span>
+        </div>
+        <div class="win-stat">
+          <span class="win-stat-label">Player</span>
+          <span id="win-player" class="win-stat-value">Player</span>
+        </div>
+      </div>
+
+      <div class="modal-footer win-modal-footer">
+        <button id="play-again-btn" class="primary-btn">Play Again</button>
+        <button id="close-win-modal" class="secondary-btn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="print-modal" class="modal">
+    <div class="modal-content print-modal-content">
+      <h2>Print Options</h2>
+      <p>Choose which puzzle set you want to print.</p>
+
+      <div class="print-options">
+        <button id="print-current-puzzle" class="primary-btn">Current Puzzle</button>
+        <button id="print-all-target-patterns" class="secondary-btn">All Possible Target Patterns</button>
+        <button id="print-all-arrangement-tiles" class="secondary-btn">All Possible Arrangement Tiles</button>
+        <button id="print-all-combinations" class="secondary-btn">All Combinations</button>
+        <button id="print-unique-combinations" class="secondary-btn">24 Unique Combinations</button>
+      </div>
+
+      <div id="print-preview-container" class="print-preview-container"></div>
+
+      <div class="modal-footer print-modal-footer">
+        <button id="print-preview-btn" class="primary-btn print-preview-btn" style="display: none;">Print</button>
+        <button id="close-print-modal" class="secondary-btn cancel-btn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
