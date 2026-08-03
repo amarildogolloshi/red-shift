@@ -662,3 +662,19 @@ button:hover {
     padding: 12px;
   }
 }
+
+@media (max-width: 320px) {
+  .app-title {
+    font-size: 1.2rem;
+  }
+
+  .board {
+    width: min(76vw, 64vw);
+    max-width: 240px;
+    gap: 6px;
+  }
+
+  .board-card {
+    padding: 12px;
+  }
+}
